@@ -1,0 +1,270 @@
+/* =========================================================
+   同频 MedEcho · 「信号」视觉层 v1
+   ---------------------------------------------------------
+   一件主线：把「同频」从首页的一张装饰图，变成看得见的反馈。
+   1) 梳理页：每答一题，信号条亮一段（答不完的部分保持虚淡）
+   2) 结果页：进入时两条波形合频，落成一份给医生看的摘要
+   3) 机构页：未定位时是雷达，而不是一块空白
+   只做增量：不改动 booking.js 的流程与任何判定。
+   ========================================================= */
+
+/* ================= 01 变量 ================= */
+:root{
+  --sig-line:#dfeee7;
+  --sig-ink:#0e8c6a;
+  --sig-glow:rgba(48,209,88,.38);
+}
+
+/* ================= 02 梳理页 · 信号条 ================= */
+/* 该屏只保留一条进度语言：信号条；原来的百分比卡让位 */
+.screen[data-screen="ask"] .hero-side{display:none}
+
+.sig-strip{
+  position:relative;
+  display:grid;grid-template-columns:186px minmax(0,1fr) auto;
+  align-items:center;gap:22px;
+  margin:26px 0 22px;padding:0 26px;height:112px;
+  border-radius:var(--r-xl);
+  background:linear-gradient(112deg,#ffffff 0%,#f8fdfa 58%,#eefaf4 100%);
+  border:1px solid var(--line);
+  box-shadow:var(--sh-1);
+  overflow:hidden;
+  transition:box-shadow .6s var(--ease-out),border-color .6s var(--ease-out);
+}
+.sig-strip[data-stage="3"]{
+  border-color:rgba(48,209,88,.35);
+  box-shadow:0 0 0 1px rgba(48,209,88,.18), 0 14px 36px -16px rgba(48,209,88,.45);
+}
+/* 光晕随进度从左侧扩散 */
+.sig-strip::after{
+  content:"";position:absolute;left:-40px;top:-60px;width:300px;height:230px;border-radius:50%;
+  background:radial-gradient(circle, rgba(48,209,88,.14), transparent 68%);
+  opacity:.35;transition:opacity .8s var(--ease-out),transform .8s var(--ease-out);
+  pointer-events:none;
+}
+.sig-strip[data-stage="1"]::after{opacity:.55;transform:translateX(30px)}
+.sig-strip[data-stage="2"]::after{opacity:.75;transform:translateX(70px)}
+.sig-strip[data-stage="3"]::after{opacity:1;transform:translateX(110px)}
+
+.sig-strip-copy{position:relative;z-index:1;min-width:0}
+.sig-strip-copy small{
+  display:inline-flex;align-items:center;gap:7px;
+  font-family:var(--mono);font-size:11px;letter-spacing:.16em;
+  color:var(--muted);text-transform:uppercase;
+}
+.sig-strip-copy small::before{
+  content:"";width:5px;height:5px;border-radius:50%;background:var(--jade);
+  box-shadow:0 0 0 3px rgba(48,209,88,.16);
+}
+.sig-strip-copy b{
+  display:block;margin-top:8px;font-size:16px;font-weight:600;
+  color:var(--ink);letter-spacing:-.01em;line-height:1.35;
+}
+.sig-strip-copy p{margin-top:5px;font-size:12.5px;color:var(--faint);line-height:1.5}
+
+.sig-strip-wave{position:relative;z-index:1;height:64px}
+.sig-strip-wave svg{width:100%;height:100%;overflow:visible}
+/* 幽灵态：整条波形先淡淡地在那儿，虚线缓慢向前走，像在等信号 */
+.sig-track{
+  fill:none;stroke:#d6e9e0;stroke-width:1.6;stroke-dasharray:4 7;
+  vector-effect:non-scaling-stroke;
+  animation:sigMarch 2.6s linear infinite;
+}
+@keyframes sigMarch{to{stroke-dashoffset:-44}}
+.sig-fill{
+  fill:none;stroke:url(#sigGrad);stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;
+  vector-effect:non-scaling-stroke;
+  filter:drop-shadow(0 4px 10px rgba(48,209,88,.45));
+  transition:stroke-dasharray 1s var(--ease-out),opacity .5s var(--ease-out);
+}
+/* 还没开始时整条隐藏：避免零长度虚线在端点渲染成两个小圆点 */
+.sig-strip[data-stage="0"] .sig-fill{opacity:0}
+.sig-strip:not([data-stage="0"]) .sig-fill{opacity:1}
+/* 笔尖：正好落在已点亮波形的末端 */
+.sig-head{
+  fill:none;stroke:#a7f8da;stroke-width:4;stroke-linecap:round;
+  vector-effect:non-scaling-stroke;
+  filter:drop-shadow(0 0 6px rgba(48,209,88,.9));
+  transition:stroke-dashoffset 1s var(--ease-out),opacity .4s var(--ease-out);
+  opacity:0;
+}
+.sig-strip[data-stage="0"] .sig-head{opacity:0}
+.sig-strip:not([data-stage="0"]) .sig-head{opacity:1}
+
+.sig-strip-count{position:relative;z-index:1;text-align:right;min-width:78px}
+.sig-strip-count b{
+  display:block;font-size:26px;font-weight:700;line-height:1;color:var(--ink);
+  letter-spacing:-.03em;font-variant-numeric:tabular-nums;
+}
+.sig-strip-count b i{font-style:normal;font-size:13px;font-weight:600;color:var(--faint);margin-left:3px}
+.sig-strip-count span{
+  display:inline-block;margin-top:8px;padding:3px 9px;border-radius:990px;
+  font-size:11px;font-weight:600;color:var(--sig-ink);background:rgba(48,209,88,.12);
+  letter-spacing:.02em;white-space:nowrap;
+}
+
+/* ================= 03 结果页 · 合频 ================= */
+.sig-merge{
+  position:relative;margin-top:20px;height:152px;
+  border-radius:var(--r-xl);overflow:hidden;
+  background:linear-gradient(118deg,#0e1a15 0%,#16261f 52%,#0c1612 100%);
+  border:1px solid rgba(255,255,255,.06);
+  box-shadow:0 18px 46px -24px rgba(9,22,17,.55);
+}
+/* 中心的一点光，让「对上频率」的位置有重量 */
+.sig-merge::before{
+  content:"";position:absolute;left:50%;top:46%;width:340px;height:180px;
+  transform:translate(-50%,-50%);pointer-events:none;
+  background:radial-gradient(circle, rgba(48,209,88,.20), rgba(48,209,88,0) 68%);
+  opacity:0;transition:opacity 1s var(--ease-out);
+}
+.sig-merge.is-in::before{opacity:1}
+
+.sig-merge svg{position:absolute;inset:0;width:100%;height:100%}
+.sig-merge .m-side{
+  fill:none;stroke:#6fe0b8;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;
+  vector-effect:non-scaling-stroke;opacity:0;
+  transform:translateX(-18px);
+  transition:opacity .9s var(--ease-out),transform 1.2s var(--ease-out);
+}
+/* 两侧从外向内靠拢：靠位移+淡入，比虚线描边稳，接缝处不会断 */
+.sig-merge .m-side.r{transform:translateX(18px);transition-delay:.08s}
+.sig-merge.is-in .m-side{opacity:.75;transform:translateX(0)}
+.sig-merge .m-core{
+  fill:none;stroke:#9ff8d8;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;
+  vector-effect:non-scaling-stroke;opacity:0;
+  filter:drop-shadow(0 0 14px rgba(48,209,88,.95));
+}
+.sig-merge .m-cap-l{
+  font:500 11px/1 var(--mono);letter-spacing:.2em;fill:rgba(207,239,225,.62);
+  opacity:0;
+}
+.sig-merge .m-halo{fill:none;stroke:#30d158;stroke-width:1;opacity:0;vector-effect:non-scaling-stroke}
+
+.sig-merge.is-in .m-core{animation:mCore .8s .85s var(--ease-out) forwards}
+.sig-merge.is-in .m-halo{animation:mHalo 1.4s 1.05s var(--ease-out) forwards}
+.sig-merge.is-in .m-cap-l{animation:mFade .8s .5s var(--ease-out) forwards}
+
+@keyframes mCore{
+  0%{opacity:0;transform:scale(.82)}
+  55%{opacity:1}
+  100%{opacity:1;transform:scale(1)}
+}
+@keyframes mHalo{
+  0%{opacity:0;transform:scale(.6)}
+  30%{opacity:.55}
+  100%{opacity:0;transform:scale(1.5)}
+}
+@keyframes mFade{to{opacity:1}}
+
+.sig-merge .m-core{transform-origin:449px 74px}
+.sig-merge .m-halo{transform-origin:449px 74px}
+.sig-merge-cap{
+  position:absolute;left:0;right:0;bottom:15px;text-align:center;
+  font-size:12.5px;color:rgba(255,255,255,.52);letter-spacing:.02em;
+}
+.sig-merge-cap b{color:#8ff3cd;font-weight:600}
+
+/* ================= 04 机构页 · 雷达空状态 ================= */
+.radar{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
+  cursor:pointer;text-align:center;padding:24px;
+  transition:background .3s var(--ease-out);
+}
+/* 一层极淡的网格：让这块区域看起来像一张还没加载的地图 */
+.radar::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:
+    linear-gradient(to right, rgba(14,140,106,.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(14,140,106,.07) 1px, transparent 1px);
+  background-size:44px 44px;
+  -webkit-mask:radial-gradient(ellipse 78% 78% at 50% 46%, #000 30%, transparent 78%);
+  mask:radial-gradient(ellipse 78% 78% at 50% 46%, #000 30%, transparent 78%);
+}
+.radar:hover{background:rgba(255,255,255,.35)}
+.radar:focus-visible{outline:3px solid var(--jade);outline-offset:-6px}
+
+.radar-orb{position:relative;width:248px;height:248px;flex:0 0 auto}
+.radar-ring{
+  position:absolute;border-radius:50%;
+  border:1px solid rgba(48,209,88,.28);
+}
+.radar-ring:nth-child(1){inset:0}
+.radar-ring:nth-child(2){inset:18%;border-color:rgba(48,209,88,.22)}
+.radar-ring:nth-child(3){inset:36%;border-color:rgba(48,209,88,.18)}
+.radar-sweep{
+  position:absolute;inset:0;border-radius:50%;
+  background:conic-gradient(from 0deg, rgba(48,209,88,.20), rgba(48,209,88,.05) 26%, rgba(48,209,88,0) 42%);
+  -webkit-mask:radial-gradient(circle, #000 60%, transparent 61%);
+  mask:radial-gradient(circle, #000 60%, transparent 61%);
+  animation:radarSweep 4s linear infinite;
+}
+@keyframes radarSweep{to{transform:rotate(360deg)}}
+
+.radar-me{
+  position:absolute;left:50%;top:50%;width:9px;height:9px;margin:-4.5px 0 0 -4.5px;
+  border-radius:50%;background:var(--jade);
+  box-shadow:0 0 0 5px rgba(48,209,88,.16), 0 0 16px rgba(48,209,88,.6);
+  animation:radarPulse 2.4s var(--ease-in-out) infinite;
+}
+@keyframes radarPulse{
+  0%,100%{box-shadow:0 0 0 4px rgba(48,209,88,.14), 0 0 12px rgba(48,209,88,.5)}
+  50%{box-shadow:0 0 0 9px rgba(48,209,88,.08), 0 0 22px rgba(48,209,88,.65)}
+}
+.radar-blip{
+  position:absolute;width:6px;height:6px;border-radius:50%;
+  background:#fff;border:1.5px solid rgba(48,209,88,.75);
+  opacity:0;animation:blip 4s linear infinite;
+}
+.radar-blip.b1{left:26%;top:30%;animation-delay:.6s}
+.radar-blip.b2{left:70%;top:42%;animation-delay:1.9s}
+.radar-blip.b3{left:48%;top:74%;animation-delay:3.1s}
+@keyframes blip{
+  0%,72%{opacity:0;transform:scale(.7)}
+  76%{opacity:1;transform:scale(1)}
+  92%{opacity:.9;transform:scale(1)}
+  100%{opacity:0;transform:scale(1.15)}
+}
+
+.radar-copy b{display:block;font-size:16px;font-weight:600;color:var(--ink);letter-spacing:-.01em}
+.radar-copy small{display:block;margin-top:7px;font-size:12.5px;color:var(--faint);line-height:1.6}
+.radar-copy em{
+  display:inline-flex;align-items:center;gap:6px;margin-top:12px;
+  height:32px;padding:0 16px;border-radius:990px;
+  font-size:13px;font-weight:600;font-style:normal;color:#fff;
+  background:var(--grad);box-shadow:var(--sh-g);
+}
+
+/* ================= 05 移动端 ================= */
+@media (max-width:760px){
+  .sig-strip{
+    grid-template-columns:minmax(0,1fr) auto;
+    gap:10px 14px;height:auto;padding:18px 18px 16px;
+  }
+  .sig-strip-wave{grid-column:1 / -1;grid-row:2;height:44px;order:3}
+  .sig-strip-copy b{font-size:15px}
+  .sig-strip-copy p{display:none}
+  .sig-strip-count b{font-size:22px}
+  .sig-strip-count span{margin-top:6px}
+
+  .sig-merge{height:118px}
+  .sig-merge-cap{font-size:11px;bottom:10px;padding:0 16px;line-height:1.5}
+
+  .radar-orb{width:172px;height:172px}
+  .radar{gap:16px}
+  .radar-copy b{font-size:15px}
+}
+
+/* ================= 06 尊重「减少动态效果」 ================= */
+@media (prefers-reduced-motion:reduce){
+  .sig-fill,.sig-head{transition:none}
+  .sig-track{animation:none}
+  .sig-merge .m-side{opacity:.75!important;transform:none!important;transition:none!important}
+  .sig-merge .m-core{opacity:1;transform:none;animation:none!important}
+  .sig-merge .m-halo{display:none}
+  .sig-merge .m-cap-l{opacity:1;animation:none!important}
+  .sig-merge::before{opacity:1}
+  .radar-sweep,.radar-me,.radar-blip{animation:none!important}
+  .radar-blip{opacity:.85}
+}

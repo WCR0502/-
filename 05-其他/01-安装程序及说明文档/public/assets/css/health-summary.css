@@ -1,0 +1,93 @@
+/* =========================================================
+   同频 MedEcho · 本次健康摘要
+   ---------------------------------------------------------
+   位置：健康档案页最后一张卡，列表结束后统一汇总
+   内容：症状 / 整理方向 / 用药与医嘱草稿 / 尚未记录
+   原则：只汇总用户说过或档案里确认过的内容，缺项明说，不补写
+   ========================================================= */
+.health-summary{
+  margin-top:22px;padding:26px 28px;
+  background:linear-gradient(180deg,#fbfefd 0%,#ffffff 46%);
+  border-color:rgba(48,209,88,.16);
+}
+.hs-head{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;flex-wrap:wrap;
+}
+.hs-head h3{font-size:21px;font-weight:700;letter-spacing:-.02em;color:var(--ink)}
+.hs-tag{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:13px;font-weight:600;letter-spacing:0;
+  color:#0a4c96;background:var(--blue-bg);border:1px solid var(--blue-line);
+  border-radius:999px;padding:4px 11px;
+}
+.hs-lead{
+  margin-top:10px;font-size:16px;line-height:1.72;
+  color:var(--ink-2);letter-spacing:0;max-width:64ch;
+}
+.hs-grid{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;margin-top:18px;
+}
+.hs-block{
+  border:1px solid var(--line);border-radius:16px;
+  padding:16px 18px;background:#fff;
+}
+.hs-block h4{
+  display:flex;align-items:center;gap:8px;
+  font-size:14px;font-weight:700;letter-spacing:.04em;color:var(--jade);
+}
+.hs-block h4 em{
+  font-style:normal;font-size:12px;font-weight:600;letter-spacing:0;
+  color:var(--faint);background:var(--bg);border:1px solid var(--line);
+  border-radius:999px;padding:1px 8px;
+}
+.hs-main{
+  margin-top:10px;font-size:18px;font-weight:600;line-height:1.72;
+  color:var(--ink);letter-spacing:0;overflow-wrap:anywhere;
+}
+.hs-list{margin-top:10px;display:grid;gap:9px}
+.hs-list li{
+  display:grid;grid-template-columns:auto minmax(0,1fr);
+  gap:10px;align-items:start;
+  font-size:16px;line-height:1.72;color:var(--ink-2);letter-spacing:0;
+}
+.hs-list .k{
+  flex:0 0 auto;font-size:12px;font-weight:600;color:var(--muted);
+  background:var(--bg-warm);border:1px solid var(--line);
+  border-radius:999px;padding:2px 9px;margin-top:3px;white-space:nowrap;
+}
+.hs-list .v{overflow-wrap:anywhere}
+.hs-list .v b{font-weight:600;color:var(--ink)}
+.hs-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.hs-chip{
+  display:inline-flex;align-items:center;
+  font-size:15px;font-weight:600;letter-spacing:0;
+  background:var(--mint-2);border:1px solid rgba(48,209,88,.24);
+  color:#0a6b3c;border-radius:999px;padding:5px 13px;
+}
+.hs-chip.soft{
+  background:var(--bg-warm);border-color:var(--line);color:var(--ink-2);
+}
+.hs-note{
+  margin-top:10px;padding:10px 12px;border-radius:12px;
+  font-size:15px;line-height:1.7;letter-spacing:0;
+  background:var(--amber-bg);border:1px solid var(--amber-line);color:#8a5c00;
+}
+.hs-empty{
+  margin-top:10px;font-size:15px;line-height:1.72;
+  color:var(--faint);letter-spacing:0;
+}
+.hs-empty b{color:var(--muted);font-weight:600}
+.hs-foot{
+  margin-top:18px;padding-top:14px;border-top:1px dashed var(--line);
+  font-size:14px;line-height:1.75;color:var(--faint);letter-spacing:0;
+}
+
+@media (max-width:760px){
+  .health-summary{padding:22px 20px}
+  .hs-grid{grid-template-columns:1fr;gap:12px}
+  .hs-head h3{font-size:19px}
+  .hs-main{font-size:17px}
+  .hs-list li{font-size:16px}
+}

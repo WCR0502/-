@@ -1,0 +1,16 @@
+{
+  "_readme": "演示用价目快照：仅用于验证『从医院收费系统读取检查价格 → 展示价格/来源/更新时间』这条链路的数据结构。价格不是任何一家医院的真实报价，不得对外报价或用于结算。配置 hospital.feeApi.url 后，服务端会改用真实 HIS 接口返回的数据。",
+  "mock": true,
+  "hospital": "演示医院（未绑定真实 HIS）",
+  "system": "内置演示价目快照",
+  "currency": "CNY",
+  "updatedAt": "2026-10-24",
+  "items": [
+    { "code": "CBC", "name": "血常规（五分类）", "price": 25, "unit": "次" },
+    { "code": "URINE", "name": "尿常规", "price": 12, "unit": "次" },
+    { "code": "US", "name": "腹部超声（肝胆胰脾）", "price": 120, "unit": "次" },
+    { "code": "ECG", "name": "心电图（十二导联）", "price": 30, "unit": "次" },
+    { "code": "CXR", "name": "胸部正位片", "price": 68, "unit": "次" },
+    { "code": "GASTRO", "name": "胃镜（普通）", "price": 350, "unit": "次" }
+  ]
+}

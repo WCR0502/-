@@ -1,0 +1,138 @@
+/* =========================================================
+   同频 MedEcho · 可访问性与新增组件
+   ---------------------------------------------------------
+   1) AI 状态胶囊、大字/高对比开关、知情同意与基本信息弹层
+   2) 正文与次要文字的对比度、按钮触控高度
+   3) 打印就诊卡字号下限，长内容允许分页，不静默截断
+   ========================================================= */
+
+/* ---------------- 顶栏：AI 状态 + 显示设置 ---------------- */
+.ai-chip{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:7px 13px;border-radius:999px;
+  font-size:14px;line-height:1;font-weight:600;
+  border:1px solid #cfe0d7;background:#f2f8f5;color:#3a4a42;
+  margin-left:auto;
+}
+.ai-chip i{width:8px;height:8px;border-radius:50%;background:#9bb0a6;display:block}
+.ai-chip.on{border-color:#9fd9c3;background:#e9f8f1;color:#0f5f4c}
+.ai-chip.on i{background:#17a673;box-shadow:0 0 0 3px rgba(23,166,115,.16)}
+.ai-chip.off i{background:#b48a2c}
+.ai-chip.off{color:#5a4a22;background:#fbf5e6;border-color:#eadfbe}
+
+.a11y-tools{display:inline-flex;gap:8px;margin-left:12px}
+.a11y-btn{
+  min-height:44px;padding:0 14px;border-radius:999px;
+  border:1px solid #cfe0d7;background:#fff;color:#2f3d37;
+  font-size:15px;font-weight:600;cursor:pointer;
+}
+.a11y-btn[aria-pressed="true"]{background:#0f5f4c;border-color:#0f5f4c;color:#fff}
+
+/* ---------------- 大字 / 高对比 ---------------- */
+body.a11y-large .hero-lead,
+body.a11y-large .card p,
+body.a11y-large .card li,
+body.a11y-large .said-item,
+body.a11y-large .panel-note,
+body.a11y-large .map-status,
+body.a11y-large .followup-transcript,
+body.a11y-large .opt-btn,
+body.a11y-large .detail-row,
+body.a11y-large .ride li span{font-size:20px !important;line-height:1.75 !important}
+
+body.a11y-large .btn,
+body.a11y-large .a11y-btn{font-size:18px !important;min-height:60px !important}
+
+body.a11y-contrast{background:#fff !important}
+body.a11y-contrast .card,
+body.a11y-contrast .screen,
+body.a11y-contrast .stage{background:#fff !important}
+body.a11y-contrast .hero-lead,
+body.a11y-contrast .panel-note,
+body.a11y-contrast .dept-hint,
+body.a11y-contrast small{color:#3c4a43 !important}
+body.a11y-contrast .card{border-color:#9fb3a9 !important;box-shadow:none !important}
+body.a11y-contrast .btn.ghost{border-color:#3c4a43 !important;color:#1b2923 !important}
+
+/* ---------------- 按钮触控高度（正文 18px 起） ---------------- */
+.btn{min-height:56px}
+.btn.lg{min-height:60px}
+.opt-btn,.mini-btn,.map-pill,.quick-btn,.dept-chip{min-height:48px}
+.panel-note,.dept-hint,.prep-note,.current-hint{color:#55655d}
+
+/* ---------------- 急诊卡：拨号与卒中提示 ---------------- */
+.emg-call{margin-top:12px}
+.emg-call .btn{display:inline-flex;align-items:center;justify-content:center;min-width:160px;text-decoration:none}
+.emg-note{margin-top:10px;font-size:15px;line-height:1.6;color:#8a4a12;background:#fff6e8;border:1px solid #f0d8b0;border-radius:10px;padding:10px 12px}
+
+/* ---------------- 只读分享视图 ---------------- */
+body.share-mode .screen-actions,
+body.share-mode #resetBtn,
+body.share-mode #advanceState,
+body.share-mode #printCard,
+body.share-mode #shareCard,
+body.share-mode #addQuestion,
+body.share-mode .emg-bar .btn,
+body.share-mode .topnav,
+body.share-mode .a11y-tools{display:none !important}
+body.share-mode .screen[data-screen="start"],
+body.share-mode .screen[data-screen="ask"],
+body.share-mode .screen[data-screen="hospital"],
+body.share-mode .screen[data-screen="record"]{display:none !important}
+body.share-mode .screen[data-screen="result"]{display:block !important}
+body.share-mode .dept-chip .chip-go{display:none}
+body.share-mode .dept-chip{cursor:default}
+
+/* ---------------- 同意 / 基本信息弹层 ---------------- */
+.mec-dialog{
+  border:none;border-radius:20px;padding:30px 30px 26px;
+  max-width:620px;width:calc(100% - 40px);
+  box-shadow:0 24px 80px rgba(16,32,26,.24);
+  color:#17211d;background:#fff;
+}
+.mec-dialog::backdrop{background:rgba(14,28,23,.46);backdrop-filter:blur(3px)}
+.mec-dialog h2{font-size:26px;line-height:1.35;margin:0 0 14px}
+.mec-lead{font-size:17px;line-height:1.7;color:#3c4a43;margin:0 0 18px}
+.mec-list{margin:0 0 20px;padding-left:20px}
+.mec-list li{font-size:17px;line-height:1.75;color:#2f3d37;margin-bottom:10px}
+.mec-list b{color:#0f5f4c}
+
+.mec-check{
+  display:flex;gap:12px;align-items:flex-start;
+  padding:14px 16px;border:1px solid #cfe0d7;border-radius:14px;
+  background:#f6faf8;font-size:17px;line-height:1.6;cursor:pointer;
+}
+.mec-check input{width:22px;height:22px;margin-top:2px;accent-color:#0f5f4c;flex:none}
+
+.mec-actions{display:flex;justify-content:flex-end;margin-top:22px}
+.mec-actions .btn{min-width:180px}
+.mec-actions .btn[disabled]{opacity:.45;cursor:not-allowed}
+.mec-foot{margin:14px 0 0;font-size:14px;color:#55655d}
+
+.mec-field{margin-bottom:18px}
+.mec-label{display:block;font-size:17px;font-weight:600;margin-bottom:10px}
+.mec-label em{font-style:normal;font-weight:500;font-size:14px;color:#55655d;margin-left:6px}
+.mec-opts{display:flex;flex-wrap:wrap;gap:10px}
+.mec-opt{
+  min-height:52px;min-width:112px;padding:0 18px;
+  border:1.5px solid #cfe0d7;border-radius:12px;background:#fff;
+  font-size:17px;color:#243029;cursor:pointer;
+}
+.mec-opt.on{border-color:#0f5f4c;background:#e9f8f1;color:#0b4a3b;font-weight:600}
+
+/* ---------------- 打印：字号下限 + 允许分页 ---------------- */
+@media print{
+  body{font-size:14px}
+  .visit-card,.visit-card *{font-size:max(14px,1em)}
+  .vc-sheet,.visit-card-print{overflow:visible !important;page-break-inside:auto !important}
+  .mec-dialog,.ai-chip,.a11y-tools{display:none !important}
+}
+
+/* ---------------- 窄屏 ---------------- */
+@media (max-width:520px){
+  .topbar{flex-wrap:wrap;gap:10px}
+  .ai-chip{margin-left:0;order:3}
+  .a11y-tools{margin-left:0;order:4}
+  .mec-dialog{padding:24px 20px}
+  .mec-opt{flex:1 1 40%}
+}

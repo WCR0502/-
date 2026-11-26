@@ -1,0 +1,502 @@
+/* ============================================================
+   本次就诊卡片 · 打印源（A4 单页）
+   ------------------------------------------------------------
+   这份文件是「打印就诊卡片」唯一的版式来源：
+   - 屏幕上默认完全隐藏，不会影响页面里已有的档案界面；
+   - @media print 时只输出 #visitCardSheet 这一张纸；
+   - 纸张 A4 纵向，页边距 0，留白全部由卡面自己控制，
+     这样底色、边框与四角标记可以完整出血。
+   ============================================================ */
+
+.vc-sheet{
+  --vc-paper:#FBF7EE;
+  --vc-ink:#1B1815;
+  --vc-ink-2:#4F483E;
+  --vc-muted:#7C7365;
+  --vc-faint:#A39885;
+  --vc-line:#E3DACA;
+  --vc-line-2:#F0E8DA;
+  --vc-card:#FFFDF8;
+  --vc-band:#F3ECE0;
+  --vc-green:#2F6B4E;
+  --vc-green-soft:#EAF2E8;
+  --vc-amber:#C08A3E;
+  --vc-font:"PingFang SC","HarmonyOS Sans SC","Source Han Sans SC","Microsoft YaHei","Hiragino Sans GB",system-ui,sans-serif;
+  --vc-mono:"SF Mono","JetBrains Mono","Roboto Mono",Consolas,monospace;
+
+  display:none;
+  position:relative;
+  box-sizing:border-box;
+  width:210mm;
+  min-height:296mm;
+  padding:0;
+  overflow:hidden;
+  background:var(--vc-paper);
+  color:var(--vc-ink);
+  font-family:var(--vc-font);
+  letter-spacing:0;
+  -webkit-font-smoothing:antialiased;
+  -webkit-print-color-adjust:exact;
+  print-color-adjust:exact;
+}
+
+/* 右上角极淡的圆形底纹，对应设计稿里的暖色光晕 */
+.vc-sheet::before{
+  content:"";
+  position:absolute;
+  top:-120px;right:-110px;
+  width:420px;height:420px;
+  border-radius:50%;
+  background:radial-gradient(circle at 50% 50%, rgba(201,164,110,.16), rgba(201,164,110,0) 68%);
+}
+
+/* 内框 + 四角标记 */
+.vc-frame{
+  position:absolute;
+  inset:8mm;
+  border:1px solid rgba(27,24,21,.26);
+  pointer-events:none;
+}
+.vc-corner{
+  position:absolute;
+  width:16px;height:16px;
+  border:1.6px solid rgba(47,107,78,.72);
+}
+.vc-corner.tl{top:calc(8mm - 1px);left:calc(8mm - 1px);border-right:0;border-bottom:0}
+.vc-corner.tr{top:calc(8mm - 1px);right:calc(8mm - 1px);border-left:0;border-bottom:0}
+.vc-corner.bl{bottom:calc(8mm - 1px);left:calc(8mm - 1px);border-right:0;border-top:0}
+.vc-corner.br{bottom:calc(8mm - 1px);right:calc(8mm - 1px);border-left:0;border-top:0}
+
+.vc-inner{
+  position:relative;
+  z-index:1;
+  box-sizing:border-box;
+  min-height:296mm;
+  padding:16mm 18mm 11mm;
+  display:flex;
+  flex-direction:column;
+  /* 内容短时把余量均分到各段之间，内容长时退回基准间距，
+     这样空态不会在页脚上方留一大块空白，长文本态也不会溢到第二页 */
+  justify-content:space-between;
+}
+
+/* ---------------- 抬头 ---------------- */
+.vc-kicker{
+  display:flex;align-items:center;gap:10px;
+  font-family:var(--vc-mono);
+  font-size:10px;line-height:1;
+  letter-spacing:.26em;
+  color:var(--vc-faint);
+  text-transform:uppercase;
+}
+.vc-kicker i{
+  width:5px;height:5px;flex:0 0 5px;
+  background:var(--vc-green);
+  display:block;
+}
+.vc-head{position:relative;padding-right:150px}
+.vc-head h1{
+  margin:12px 0 0;
+  font-family:var(--vc-font);
+  font-size:48px;line-height:1.04;
+  font-weight:800;
+  letter-spacing:-.02em;
+  color:var(--vc-ink);
+}
+.vc-sub{
+  margin:11px 0 0;
+  font-size:15px;line-height:1.6;
+  color:var(--vc-muted);
+  letter-spacing:.01em;
+}
+.vc-status{
+  position:absolute;
+  top:2px;right:0;
+  text-align:right;
+}
+.vc-status small{
+  display:block;
+  font-size:9px;letter-spacing:.2em;
+  color:var(--vc-faint);
+}
+.vc-pill{
+  display:inline-flex;align-items:center;gap:8px;
+  margin-top:9px;
+  padding:10px 19px;
+  border:1px solid var(--vc-line);
+  border-radius:999px;
+  background:var(--vc-card);
+  font-size:13.5px;font-weight:600;
+  color:var(--vc-ink);
+  white-space:nowrap;
+}
+.vc-pill i{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--vc-green);
+  display:block;
+}
+
+/* ---------------- 三栏信息带 ---------------- */
+.vc-info{
+  display:flex;
+  margin-top:20px;
+  padding:13px 4px;
+  background:var(--vc-band);
+  border-radius:9px;
+}
+.vc-info > div{
+  flex:1 1 0;
+  min-width:0;
+  padding:0 18px;
+}
+.vc-info > div + div{border-left:1px solid rgba(27,24,21,.1)}
+.vc-info small{
+  display:block;
+  font-size:9px;letter-spacing:.2em;
+  color:var(--vc-faint);
+}
+.vc-info b{
+  display:block;
+  margin-top:6px;
+  font-size:16px;line-height:1.35;
+  font-weight:700;
+  letter-spacing:-.01em;
+  color:var(--vc-ink);
+  word-break:break-word;
+}
+.vc-info .vc-info-sub{
+  display:block;
+  margin-top:4px;
+  font-size:11.5px;line-height:1.4;
+  color:var(--vc-muted);
+  word-break:break-word;
+}
+
+/* ---------------- 章节标题 ---------------- */
+.vc-sec{margin-top:20px}
+.vc-sec-head{
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:11px;
+}
+.vc-no{
+  font-family:var(--vc-mono);
+  font-size:11px;font-weight:700;
+  letter-spacing:.06em;
+  color:var(--vc-amber);
+}
+.vc-sec-head h2{
+  margin:0;
+  font-size:18px;line-height:1.2;
+  font-weight:700;
+  letter-spacing:-.01em;
+  color:var(--vc-ink);
+  white-space:nowrap;
+}
+.vc-sec-head .vc-rule{
+  flex:1 1 auto;
+  height:1px;
+  background:var(--vc-line);
+}
+.vc-sec-tag{
+  font-size:8.5px;letter-spacing:.2em;
+  color:var(--vc-faint);
+  white-space:nowrap;
+}
+
+/* ---------------- 01 就诊进度 ---------------- */
+.vc-flowcard{
+  border:1px solid var(--vc-line);
+  border-radius:11px;
+  background:var(--vc-card);
+  padding:15px 20px 12px;
+}
+.vc-flow{
+  display:flex;
+  align-items:flex-start;
+  margin:0;padding:0;
+  list-style:none;
+}
+.vc-flow .vc-step{
+  position:relative;
+  flex:1 1 0;
+  min-width:0;
+  padding-top:28px;
+  text-align:center;
+  font-size:13.5px;line-height:1.3;
+  color:var(--vc-faint);
+}
+.vc-flow .vc-step + .vc-step::before{
+  content:"";
+  position:absolute;
+  top:11px;left:-50%;
+  width:100%;height:1px;
+  background:var(--vc-line);
+}
+.vc-flow b{
+  position:absolute;
+  top:0;left:50%;
+  transform:translateX(-50%);
+  box-sizing:border-box;
+  width:24px;height:24px;
+  display:grid;place-items:center;
+  border-radius:50%;
+  border:1px solid #DDD3C2;
+  background:#FFFDF8;
+  font-family:var(--vc-mono);
+  font-size:10px;font-weight:600;
+  font-style:normal;
+  color:#A99F8D;
+}
+.vc-flow svg{width:11px;height:11px;display:block}
+.vc-flow .vc-step.is-done,
+.vc-flow .vc-step.is-on{color:var(--vc-ink-2);font-weight:600}
+.vc-flow .vc-step.is-done b,
+.vc-flow .vc-step.is-on b{
+  background:var(--vc-green);
+  border-color:var(--vc-green);
+  color:#fff;
+}
+.vc-flow .vc-step.is-on{color:var(--vc-ink);font-weight:700}
+
+.vc-next{
+  display:flex;align-items:center;gap:8px;
+  margin:13px 0 0;
+  padding:9px 13px;
+  border-radius:7px;
+  background:var(--vc-band);
+  font-size:12px;line-height:1.5;
+  color:#6B6255;
+}
+.vc-next i{
+  width:5px;height:5px;flex:0 0 5px;
+  border-radius:50%;
+  background:var(--vc-amber);
+  display:block;
+}
+
+/* ---------------- 02 症状与咨询计划 ---------------- */
+.vc-plan{
+  border:1px solid var(--vc-line);
+  border-radius:11px;
+  background:var(--vc-card);
+  padding:15px 20px 6px;
+}
+.vc-tag{
+  display:inline-block;
+  padding:4px 11px;
+  border-radius:999px;
+  background:var(--vc-green-soft);
+  font-size:10px;font-weight:600;
+  letter-spacing:.06em;
+  color:#3D6B4C;
+}
+.vc-rows{margin-top:12px}
+.vc-row{
+  display:flex;align-items:flex-start;gap:16px;
+  padding:8px 0;
+}
+.vc-row + .vc-row{border-top:1px solid var(--vc-line-2)}
+.vc-row .k{
+  flex:0 0 74px;
+  font-size:12.5px;line-height:1.7;
+  font-weight:600;
+  color:var(--vc-ink-2);
+}
+.vc-row .v{
+  flex:1 1 auto;
+  min-width:0;
+  font-size:12.5px;line-height:1.7;
+  color:#877E6F;
+  word-break:break-word;
+  letter-spacing:0;
+  /* 长描述完整换行显示，不截断、不省略 */
+  display:block;
+  overflow:visible;
+}
+.vc-row .v .is-empty,.vc-row .v.is-empty{color:#AEA493}
+.vc-row .v b{font-weight:600;color:var(--vc-ink-2)}
+
+/* ---------------- 03 就诊准备 ---------------- */
+.vc-two{
+  display:flex;
+  gap:12px;
+}
+.vc-mini{
+  flex:1 1 0;
+  min-width:0;
+  box-sizing:border-box;
+  border:1px solid var(--vc-line);
+  border-radius:11px;
+  background:var(--vc-card);
+  padding:14px 17px 12px;
+}
+.vc-mini-head{
+  display:flex;align-items:center;gap:9px;
+}
+.vc-mini-ic{
+  width:24px;height:24px;flex:0 0 24px;
+  display:grid;place-items:center;
+  border-radius:50%;
+  background:var(--vc-green-soft);
+  color:var(--vc-green);
+}
+.vc-mini-ic.blue{background:#E9EFF3;color:#44657A}
+.vc-mini-ic svg{width:12px;height:12px;display:block}
+.vc-mini h3{
+  margin:0;
+  font-size:14px;font-weight:700;
+  letter-spacing:-.01em;
+  color:var(--vc-ink);
+}
+.vc-mini-body{
+  margin:12px 0 0;
+  font-size:11.5px;line-height:1.6;
+  color:var(--vc-muted);
+  word-break:break-word;
+}
+.vc-count{
+  margin:9px 0 0;
+  font-size:11.5px;line-height:1.5;
+  color:var(--vc-ink-2);
+}
+.vc-count b{
+  font-family:var(--vc-mono);
+  font-size:17px;font-weight:700;
+  color:var(--vc-amber);
+  padding:0 2px;
+}
+.vc-mini-foot{
+  margin:8px 0 0;
+  font-size:10px;line-height:1.5;
+  color:#B7AC9A;
+}
+.vc-mini-list{
+  margin:9px 0 0;padding:0;
+  list-style:none;
+  font-size:11px;line-height:1.65;
+  color:var(--vc-ink-2);
+}
+.vc-mini-list li{display:flex;gap:6px}
+.vc-mini-list li span:first-child{color:var(--vc-faint);flex:0 0 24px}
+
+/* ---------------- 本次健康摘要 ---------------- */
+.vc-summary{
+  position:relative;
+  margin-top:20px;
+  padding:16px 22px 12px 24px;
+  border-radius:9px;
+  background:#EBF2E8;
+  overflow:hidden;
+}
+.vc-summary::before{
+  content:"";
+  position:absolute;
+  top:0;bottom:0;left:0;
+  width:3px;
+  background:var(--vc-green);
+}
+.vc-summary-head{
+  display:flex;align-items:center;gap:10px;
+  flex-wrap:wrap;
+}
+.vc-summary h4{
+  margin:0;
+  font-size:16px;font-weight:700;
+  letter-spacing:-.01em;
+  color:#22402F;
+}
+.vc-summary .vc-badge{
+  margin-left:auto;
+  padding:5px 12px;
+  border:1px solid #CFDEC9;
+  border-radius:999px;
+  background:#F7FBF5;
+  font-size:8.5px;letter-spacing:.08em;
+  color:#4E7A5E;
+  white-space:nowrap;
+}
+.vc-summary p{
+  margin:8px 0 0;
+  font-size:12.5px;line-height:1.7;
+  color:#4A5B4E;
+}
+.vc-summary p + p{margin-top:4px}
+.vc-summary p{
+  /* 摘要完整换行显示，不截断 */
+  display:block;
+  overflow:visible;
+}
+.vc-summary .vc-carry{
+  margin-top:10px;
+  padding-top:8px;
+  border-top:1px solid #D6E2D1;
+  font-size:9.5px;line-height:1.5;
+  color:#7D8779;
+  letter-spacing:.02em;
+}
+
+/* ---------------- 页脚 ---------------- */
+.vc-foot{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;
+  margin-top:0;
+  padding-top:12px;
+  font-family:var(--vc-mono);
+  font-size:9px;
+  letter-spacing:.14em;
+  color:var(--vc-faint);
+}
+.vc-foot .mid{
+  flex:1 1 auto;
+  text-align:center;
+  font-family:var(--vc-font);
+  font-size:10px;
+  letter-spacing:.02em;
+  color:#A79D8C;
+}
+.vc-foot .pg{white-space:nowrap}
+
+/* ============================================================
+   屏幕预览：?card=1 时把这张纸按原尺寸显示，便于核对版式
+   ============================================================ */
+body.vc-preview{
+  background:#E9E5DE;
+  margin:0;
+  padding:0;
+}
+body.vc-preview .app,
+body.vc-preview .share-bar,
+body.vc-preview dialog{display:none!important}
+body.vc-preview .vc-sheet{
+  display:block;
+  margin:0 auto;
+  box-shadow:0 10px 40px rgba(27,24,21,.16);
+}
+
+/* ============================================================
+   打印：只输出这张卡
+   ============================================================ */
+@media print{
+  @page{size:A4 portrait;margin:0}
+
+  html,body{
+    margin:0!important;
+    padding:0!important;
+    background:var(--vc-paper, #FBF7EE)!important;
+  }
+
+  /* 页面里其余内容（含旧的档案卡片）一律不进纸 */
+  body > *{display:none!important}
+  body > #visitCardSheet{
+    display:block!important;
+    margin:0!important;
+    box-shadow:none!important;
+  }
+
+  .vc-sheet{
+    background:#FBF7EE;
+    break-after:avoid;
+    page-break-after:avoid;
+  }
+  .vc-sec,.vc-summary,.vc-flowcard,.vc-plan,.vc-mini,.vc-info{break-inside:avoid;page-break-inside:avoid}
+}

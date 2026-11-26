@@ -1,0 +1,76 @@
+/* =========================================================
+   疾病概率卡片（就医指南 · 结果页）
+   ---------------------------------------------------------
+   样式与首页同一套设计变量：浅色纸面、品牌绿强调、克制阴影。
+   ========================================================= */
+.prob-card{position:relative;overflow:hidden}
+.prob-card .prob-head{
+  display:flex;align-items:flex-start;gap:12px;
+  margin-bottom:14px;
+}
+.prob-card .prob-ic{
+  flex:0 0 34px;width:34px;height:34px;border-radius:10px;
+  display:grid;place-items:center;
+  background:var(--brand-soft);color:var(--brand);
+}
+.prob-card .prob-ic svg{width:19px;height:19px}
+.prob-card h3{margin:0;font-size:16px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
+.prob-card .prob-sub{margin:3px 0 0;font-size:12.5px;line-height:1.6;color:var(--muted)}
+
+/* 单条候选：一句「您可能得了 X 病，概率为 N%」+ 概率条 */
+.prob-list{display:flex;flex-direction:column;gap:10px}
+.prob-item{
+  padding:12px 14px;border:1px solid var(--line);border-radius:var(--r-md);
+  background:#fbfdfc;
+}
+.prob-item .prob-say{
+  margin:0;font-size:14.5px;line-height:1.65;color:var(--ink);
+  letter-spacing:-.005em;
+}
+.prob-item .prob-say b{color:var(--brand-dark);font-weight:700}
+.prob-item .prob-say .pct{
+  display:inline-block;min-width:52px;
+  font-weight:700;color:var(--brand-dark);
+  font-variant-numeric:tabular-nums;
+}
+.prob-bar{
+  position:relative;height:6px;margin-top:8px;border-radius:99px;
+  background:var(--brand-soft);overflow:hidden;
+}
+.prob-bar i{
+  position:absolute;inset:0 auto 0 0;border-radius:99px;
+  background:linear-gradient(90deg,var(--brand) 0%,#2f9b7f 100%);
+  transition:width .6s cubic-bezier(.16,1,.3,1);
+}
+.prob-why{margin:7px 0 0;font-size:12.5px;line-height:1.6;color:var(--muted)}
+.prob-why b{color:var(--ink-2);font-weight:600}
+
+.prob-urgent{
+  margin-bottom:12px;padding:10px 12px;border-radius:var(--r-sm);
+  background:var(--warn-soft);border:1px solid var(--warn-line);
+  font-size:13px;line-height:1.6;color:var(--warn);font-weight:600;
+}
+
+.prob-state{
+  margin:0;padding:14px;border:1px dashed var(--line-2);border-radius:var(--r-md);
+  font-size:13px;line-height:1.7;color:var(--muted);text-align:center;
+}
+.prob-state.is-spin{color:var(--brand)}
+
+.prob-note{
+  margin:12px 0 0;padding-top:10px;border-top:1px solid var(--line);
+  font-size:11.5px;line-height:1.7;color:var(--faint);
+}
+.prob-src{margin:6px 0 0;font-size:11px;color:var(--faint);letter-spacing:.02em}
+
+/* 概率条入场动画：逐条淡入上移 */
+.prob-item{opacity:0;transform:translateY(6px);animation:probIn .45s cubic-bezier(.16,1,.3,1) forwards}
+.prob-item:nth-child(1){animation-delay:.05s}
+.prob-item:nth-child(2){animation-delay:.13s}
+.prob-item:nth-child(3){animation-delay:.21s}
+.prob-item:nth-child(4){animation-delay:.29s}
+@keyframes probIn{to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){
+  .prob-item{animation:none;opacity:1;transform:none}
+  .prob-bar i{transition:none}
+}

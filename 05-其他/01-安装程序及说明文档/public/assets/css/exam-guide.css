@@ -1,0 +1,604 @@
+/* =========================================================
+   同频 MedEcho · 检查前心里有数
+   ---------------------------------------------------------
+   1. 入口：就医建议页（主入口卡）+ 我的档案页（轻量条）
+   2. 弹层：常见检查流程卡（步骤 / 准备 / 耗时 / 检查后 / 费用）
+   3. 费用口径：只读展示来源与更新时间，无可靠价格时统一显示
+      「暂未取得本院准确价格」，不出现任何报价与报销估算
+   4. 面向中老年：正文 17–18px、可点区域 ≥ 52px、强对比
+   ========================================================= */
+
+/* ================= 01 入口卡（就医建议页） ================= */
+.exam-entry{
+  display:grid;
+  grid-template-columns:56px minmax(0,1fr) auto;
+  gap:22px;align-items:center;
+  margin-top:22px;padding:26px 28px;
+  background:linear-gradient(115deg,#f6fdfa 0%,#ffffff 52%,#fbfefd 100%);
+  border-color:rgba(48,209,88,.18);
+  position:relative;overflow:hidden;
+}
+.exam-entry::before{
+  content:"";position:absolute;left:0;top:18px;bottom:18px;width:4px;border-radius:0 4px 4px 0;
+  background:var(--grad);
+}
+.exam-entry-ic{
+  width:56px;height:56px;border-radius:18px;
+  display:grid;place-items:center;
+  background:#fff;border:1px solid rgba(48,209,88,.22);
+  color:var(--jade);box-shadow:0 6px 18px rgba(48,209,88,.12);
+}
+.exam-entry-ic svg{width:28px;height:28px}
+.exam-entry-copy{min-width:0}
+.exam-entry h3{
+  font-size:21px;font-weight:700;letter-spacing:-.02em;
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.exam-entry h3 span{
+  font-size:13px;font-weight:600;color:var(--jade);
+  background:var(--mint-2);border:1px solid rgba(48,209,88,.22);
+  border-radius:999px;padding:3px 10px;letter-spacing:0;
+}
+.exam-entry p{
+  margin-top:10px;font-size:17px;line-height:1.7;
+  color:var(--ink-2);max-width:60ch;letter-spacing:0;
+  text-wrap:pretty;
+}
+.exam-entry-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.exam-tag{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:13px;font-weight:500;color:var(--muted);
+  background:rgba(0,0,0,.03);border:1px solid var(--line);
+  border-radius:999px;padding:4px 11px;
+}
+.exam-entry .btn{
+  min-height:56px;padding:0 28px;font-size:17px;
+  box-shadow:var(--sh-g),0 2px 8px rgba(48,209,88,.2);
+}
+
+/* ================= 02 轻量入口（我的档案页） ================= */
+.exam-inline{
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  margin-top:18px;padding:16px 20px;
+  border-radius:var(--r-lg);
+  background:var(--mint-2);
+  border:1px dashed rgba(48,209,88,.32);
+}
+.exam-inline-ic{
+  flex:0 0 30px;width:30px;height:30px;border-radius:50%;
+  display:grid;place-items:center;background:#fff;
+  color:var(--jade);border:1px solid rgba(48,209,88,.24);
+}
+.exam-inline-ic svg{width:17px;height:17px}
+.exam-inline p{
+  flex:1 1 300px;font-size:16px;line-height:1.65;color:#0e6b4f;letter-spacing:0;
+}
+.exam-inline p b{font-weight:700}
+.exam-inline .btn{min-height:52px;padding:0 22px;font-size:16px}
+
+/* ================= 03 弹层骨架 ================= */
+body.exam-lock{overflow:hidden}
+
+.exam-dialog{
+  position:fixed;inset:0;margin:auto;
+  width:min(940px,calc(100% - 32px));
+  max-height:92vh;
+  padding:0;border:1px solid rgba(0,0,0,.06);border-radius:28px;
+  background:var(--paper);color:var(--ink);
+  box-shadow:0 50px 120px -30px rgba(0,0,0,.3),0 0 0 1px rgba(0,0,0,.03);
+  overflow:hidden;
+}
+.exam-dialog:not([open]){display:none}
+.exam-dialog[open]{
+  display:flex;flex-direction:column;
+  animation:examPop .34s var(--ease-spring);
+}
+.exam-dialog::backdrop{
+  background:rgba(0,0,0,.34);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+}
+@keyframes examPop{
+  from{opacity:0;transform:translateY(18px) scale(.97)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+
+/* ---------- 头部（固定，不随内容滚动） ---------- */
+.exam-dialog-head{
+  flex:0 0 auto;position:relative;
+  padding:26px 32px 20px;
+  border-bottom:1px solid rgba(0,0,0,.06);
+  background:linear-gradient(180deg,#f8fdfb,#ffffff);
+}
+.exam-kicker{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:13px;font-weight:600;letter-spacing:.14em;
+  color:var(--jade);text-transform:uppercase;
+}
+.exam-kicker::before{
+  content:"";width:6px;height:6px;border-radius:50%;
+  background:var(--jade);box-shadow:0 0 0 4px rgba(48,209,88,.14);
+}
+.exam-dialog-head h2{
+  margin-top:10px;font-size:30px;font-weight:700;letter-spacing:-.03em;
+}
+.exam-dialog-head > p{
+  margin-top:10px;font-size:17px;line-height:1.7;color:var(--ink-2);
+  max-width:62ch;letter-spacing:0;
+}
+.exam-dialog-close{
+  position:absolute;right:22px;top:22px;
+  width:52px;height:52px;border-radius:50%;
+  display:grid;place-items:center;
+  background:var(--bg);color:var(--ink-2);
+  font-size:26px;line-height:1;font-weight:300;
+  transition:all .22s var(--ease-out);
+}
+.exam-dialog-close:hover{background:var(--mint-2);color:var(--jade);transform:rotate(90deg)}
+
+/* ---------- 内容区（唯一滚动容器） ---------- */
+.exam-dialog-body{
+  flex:1 1 auto;min-height:0;overflow-y:auto;
+  padding:22px 32px 32px;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+}
+
+/* ---------- 演示 / 口径提示 ---------- */
+.exam-alert{
+  display:flex;gap:12px;align-items:flex-start;
+  padding:16px 18px;border-radius:var(--r-lg);
+  background:var(--amber-bg);border:1px solid var(--amber-line);
+  margin-bottom:18px;
+}
+.exam-alert-ic{
+  flex:0 0 24px;width:24px;height:24px;border-radius:50%;
+  display:grid;place-items:center;background:#fff;
+  border:1px solid rgba(255,159,10,.35);color:var(--amber);
+  font-size:14px;font-weight:700;margin-top:1px;
+}
+.exam-alert p{font-size:16px;line-height:1.7;color:#8a5c00;letter-spacing:0}
+.exam-alert b{color:#7a4f00;font-weight:700}
+
+.exam-plain{
+  display:flex;gap:12px;align-items:flex-start;
+  padding:14px 18px;border-radius:var(--r-lg);
+  background:var(--blue-bg);border:1px solid var(--blue-line);
+  margin-bottom:20px;
+}
+.exam-plain p{font-size:16px;line-height:1.7;color:#0b4a8f;letter-spacing:0}
+.exam-plain b{font-weight:700}
+
+/* ---------- 顶部提示的三种状态：已接入 / 演示 / 待接入 ---------- */
+.exam-alert.is-live{background:var(--mint-2);border-color:rgba(48,209,88,.3)}
+.exam-alert.is-live .exam-alert-ic{color:var(--jade);border-color:rgba(48,209,88,.4);font-weight:700}
+.exam-alert.is-live p{color:#0b6b3a}
+.exam-alert.is-live b{color:#075c31}
+.exam-alert.is-plain{background:var(--blue-bg);border-color:var(--blue-line)}
+.exam-alert.is-plain .exam-alert-ic{color:var(--pine);border-color:rgba(0,113,227,.3);font-size:12px}
+.exam-alert.is-plain p{color:#0b4a8f}
+.exam-alert.is-plain b{color:#08386b}
+.exam-alert-retry{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:40px;margin-left:10px;padding:0 16px;
+  border:1px solid var(--amber-line);border-radius:999px;background:#fff;
+  color:#8a5c00;font-size:14px;font-weight:600;
+}
+.exam-alert-retry:hover{background:var(--amber-bg)}
+
+/* ================= 03b 必查 / 按需 标注 ================= */
+.exam-legend{
+  display:flex;flex-wrap:wrap;gap:8px 18px;
+  margin-bottom:14px;font-size:14px;line-height:1.6;color:var(--muted);letter-spacing:0;
+}
+.exam-legend > span{display:inline-flex;align-items:center;gap:7px}
+.exam-legend b{color:var(--ink-2);font-weight:600}
+.exam-legend .dot{width:9px;height:9px;border-radius:50%;flex:0 0 9px}
+.exam-legend .dot.must{background:#30d158}
+.exam-legend .dot.optional{background:#0071e3}
+.exam-legend .dot.rare{background:#aeaeb2}
+
+.exam-filter{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.exam-filter button{
+  display:inline-flex;align-items:center;gap:6px;
+  min-height:44px;padding:0 16px;border-radius:999px;
+  border:1px solid var(--line);background:#fff;
+  font-size:15px;font-weight:600;color:var(--ink-2);letter-spacing:0;
+  transition:all .2s var(--ease-out);
+}
+.exam-filter button:hover{border-color:var(--line-2);background:var(--bg-warm)}
+.exam-filter button.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.exam-filter button .n{font-size:13px;font-weight:600;opacity:.55;font-variant-numeric:tabular-nums}
+.exam-filter button.on .n{opacity:.7}
+
+.exam-need{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:12px;font-weight:700;letter-spacing:0;
+  border-radius:999px;padding:3px 10px;
+  border:1px solid transparent;
+}
+.exam-need i{width:6px;height:6px;border-radius:50%;background:currentColor;flex:0 0 6px}
+.exam-need.must{color:#0a6b3c;background:#e9f9f0;border-color:rgba(48,209,88,.3)}
+.exam-need.optional{color:#0a4c96;background:#eef5ff;border-color:rgba(0,113,227,.22)}
+.exam-need.rare{color:#5c5c61;background:#f2f2f4;border-color:var(--line-2)}
+
+.exam-need-note{
+  display:flex;gap:10px;align-items:flex-start;
+  margin-top:16px;padding:14px 16px;border-radius:14px;
+  font-size:16px;line-height:1.7;letter-spacing:0;
+}
+.exam-need-note b{flex:0 0 auto;font-weight:700}
+.exam-need-note.must{background:#f2fcf6;border:1px solid rgba(48,209,88,.24);color:#0a6b3c}
+.exam-need-note.optional{background:#f4f9ff;border:1px solid rgba(0,113,227,.18);color:#0a4c96}
+.exam-need-note.rare{background:#f7f7f9;border:1px solid var(--line);color:#4a4a4f}
+.exam-need-note span{color:var(--ink-2)}
+
+.exam-item[hidden]{display:none}
+
+/* ================= 04 检查卡（可展开） ================= */
+.exam-list{display:grid;gap:12px}
+
+/* ---- 动态上下文：说明这批内容是按你说的生成的 ---- */
+.exam-context{
+  display:flex;gap:13px;align-items:flex-start;
+  padding:16px 18px;border-radius:var(--r-lg);
+  background:#f6fbf8;border:1px solid rgba(48,209,88,.22);
+  margin-bottom:18px;
+}
+.exam-context-ic{
+  flex:0 0 30px;width:30px;height:30px;border-radius:10px;
+  display:grid;place-items:center;
+  background:#fff;border:1px solid rgba(48,209,88,.32);
+  color:var(--jade);font-size:15px;font-weight:700;line-height:1;
+}
+.exam-context b{display:block;font-size:16px;font-weight:700;color:#0a6b3c;letter-spacing:0}
+.exam-context p{
+  margin-top:6px;font-size:16px;line-height:1.7;color:var(--ink-2);letter-spacing:0;
+}
+.exam-context p b{display:inline;color:#0a6b3c}
+.exam-context-said{
+  font-size:17px !important;font-weight:600;color:var(--ink) !important;
+  display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;
+}
+.exam-context-tags{
+  font-size:13px;font-weight:600;color:var(--muted);
+  background:var(--bg-warm);border:1px solid var(--line);
+  border-radius:999px;padding:3px 10px;letter-spacing:0;
+}
+.exam-context.is-urgent{background:#fff5f5;border-color:rgba(255,59,48,.28)}
+.exam-context.is-urgent .exam-context-ic{color:#c81e1e;border-color:rgba(255,59,48,.34)}
+.exam-context.is-urgent b{color:#a81717}
+.exam-context.is-dynamic{background:linear-gradient(135deg,#f4fbf7,#ffffff 65%)}
+
+/* ---- 分组 ---- */
+.exam-group{margin-bottom:24px}
+.exam-group:last-of-type{margin-bottom:6px}
+.exam-group[hidden]{display:none}
+.exam-group-head{margin-bottom:12px}
+.exam-group-head h3{
+  display:flex;align-items:center;gap:10px;
+  font-size:17px;font-weight:700;color:var(--ink);letter-spacing:-.01em;
+}
+.exam-group-head h3 .n{
+  min-width:26px;height:24px;padding:0 8px;border-radius:999px;
+  display:inline-grid;place-items:center;
+  background:var(--bg-warm);border:1px solid var(--line);
+  font-size:13px;font-weight:700;color:var(--muted);
+  font-variant-numeric:tabular-nums;
+}
+.exam-group[data-group="related"] .exam-group-head h3 .n{
+  background:var(--jade);border-color:var(--jade);color:#fff;
+}
+.exam-group[data-group="related"] .exam-group-head h3::before{
+  content:"";width:4px;height:18px;border-radius:2px;background:var(--grad);
+}
+.exam-group-head p{
+  margin-top:7px;font-size:15px;line-height:1.65;color:var(--muted);letter-spacing:0;
+}
+.exam-empty{
+  padding:26px 20px;text-align:center;font-size:16px;color:var(--faint);
+  background:var(--bg-warm);border:2px dashed var(--line-2);border-radius:var(--r-lg);
+}
+.exam-empty[hidden]{display:none}
+
+/* ---- 「为什么被挑出来」 ---- */
+.exam-why{
+  display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:9px;
+}
+.exam-why-k{font-size:13px;color:var(--faint);letter-spacing:0}
+.exam-why b{
+  font-size:13px;font-weight:700;color:#0a6b3c;
+  background:#e9f9f0;border:1px solid rgba(48,209,88,.3);
+  border-radius:999px;padding:2px 9px;letter-spacing:0;
+}
+.exam-why-n{font-size:13px;color:var(--faint);letter-spacing:0}
+
+.exam-item{
+  border:1px solid var(--line);border-radius:20px;background:#fff;
+  box-shadow:var(--sh-1);overflow:hidden;
+  transition:border-color .25s var(--ease-out),box-shadow .25s var(--ease-out);
+}
+.exam-item[open]{border-color:rgba(48,209,88,.32);box-shadow:var(--sh-2)}
+.exam-item:hover{border-color:rgba(48,209,88,.24)}
+
+.exam-item > summary{
+  display:grid;
+  grid-template-columns:46px minmax(0,1fr) auto 22px;
+  gap:16px;align-items:center;
+  min-height:88px;padding:16px 22px;
+  cursor:pointer;list-style:none;
+  transition:background .2s var(--ease-out);
+}
+.exam-item > summary::-webkit-details-marker{display:none}
+.exam-item > summary:hover{background:#fbfefc}
+.exam-no{
+  width:46px;height:46px;border-radius:14px;
+  display:grid;place-items:center;
+  background:var(--mint-2);border:1px solid rgba(48,209,88,.22);
+  color:var(--jade);font-size:15px;font-weight:700;
+  font-variant-numeric:tabular-nums;
+}
+.exam-name{min-width:0}
+.exam-name b{
+  display:flex;align-items:center;gap:9px;flex-wrap:wrap;
+  font-size:20px;font-weight:700;letter-spacing:-.02em;color:var(--ink);
+}
+.exam-kind{
+  font-size:12px;font-weight:600;color:var(--muted);
+  background:var(--bg);border:1px solid var(--line);
+  border-radius:999px;padding:2px 9px;letter-spacing:0;
+}
+.exam-name small{
+  display:block;margin-top:6px;
+  font-size:16px;line-height:1.55;color:var(--muted);letter-spacing:0;
+  overflow-wrap:anywhere;
+}
+.exam-time-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:14px;font-weight:600;color:var(--ink-2);
+  background:var(--bg-warm);border:1px solid var(--line);
+  border-radius:999px;padding:7px 14px;white-space:nowrap;
+}
+.exam-chev{
+  width:22px;height:22px;color:var(--faint);
+  transition:transform .28s var(--ease-out);
+}
+.exam-item[open] .exam-chev{transform:rotate(180deg);color:var(--jade)}
+
+/* ---------- 展开内容 ---------- */
+.exam-body{
+  padding:4px 22px 24px;
+  border-top:1px dashed var(--line);
+  margin-top:0;
+}
+.exam-cols{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;padding-top:18px;
+}
+.exam-block{
+  background:var(--bg-warm);
+  border:1px solid rgba(0,0,0,.04);
+  border-radius:16px;padding:16px 18px;
+}
+.exam-block h4{
+  display:flex;align-items:center;gap:9px;
+  font-size:14px;font-weight:700;letter-spacing:.04em;color:var(--jade);
+}
+.exam-block h4 svg{width:17px;height:17px;flex:0 0 17px;stroke-width:2.15}
+.exam-block p,.exam-block li{
+  margin-top:10px;font-size:17px;line-height:1.75;color:var(--ink-2);letter-spacing:0;
+}
+.exam-steps{counter-reset:s;display:grid;gap:10px;margin-top:12px}
+.exam-steps li{
+  display:grid;grid-template-columns:24px minmax(0,1fr);gap:10px;
+  counter-increment:s;margin-top:0;
+}
+.exam-steps li::before{
+  content:counter(s);
+  width:24px;height:24px;border-radius:50%;
+  display:grid;place-items:center;
+  background:#fff;border:1px solid rgba(48,209,88,.28);
+  color:var(--jade);font-size:13px;font-weight:700;
+  margin-top:3px;
+}
+.exam-prep{display:grid;gap:8px;margin-top:10px}
+.exam-prep li{
+  position:relative;padding-left:18px;margin-top:0;
+}
+.exam-prep li::before{
+  content:"";position:absolute;left:0;top:.72em;
+  width:6px;height:6px;border-radius:50%;background:var(--jade);opacity:.55;
+}
+.exam-time-main{font-size:18px;font-weight:700;color:var(--ink)}
+.exam-time-note{font-size:15px;color:var(--faint);margin-top:8px}
+.exam-after{font-size:17px;line-height:1.75;color:var(--ink-2)}
+
+/* ---- 心理准备：整行铺开，先说「什么感觉」再说「怎么办」 ---- */
+.exam-block.wide{grid-column:1/-1}
+.exam-mind{
+  background:linear-gradient(135deg,#f4f9ff 0%,#ffffff 70%);
+  border-color:rgba(0,113,227,.16);
+}
+.exam-mind h4{color:var(--pine)}
+.exam-mind p{margin-top:12px}
+.exam-mind b{
+  display:block;margin:0 0 3px;
+  font-size:13px;font-weight:700;letter-spacing:.04em;
+  color:var(--pine);
+}
+.exam-mind .exam-feel b{color:#0b4a8f}
+
+/* ================= 05 费用块（口径最严格） ================= */
+.exam-fee{
+  margin-top:14px;padding:18px;
+  border-radius:18px;background:#fff;
+  border:1px solid var(--line);
+}
+.exam-fee-head{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  padding-bottom:12px;border-bottom:1px dashed var(--line);
+}
+.exam-fee-head h4{
+  font-size:16px;font-weight:700;color:var(--ink);letter-spacing:-.01em;
+}
+.exam-fee.is-live{border-color:rgba(48,209,88,.3);background:linear-gradient(180deg,#f7fefb,#ffffff 60%)}
+.fee-demo{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:13px;font-weight:700;color:#8a5c00;
+  background:var(--amber-bg);border:1px solid var(--amber-line);
+  border-radius:999px;padding:4px 11px;letter-spacing:0;
+}
+.fee-src{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:13px;font-weight:700;color:#0a6b3c;
+  background:#e9f9f0;border:1px solid rgba(48,209,88,.3);
+  border-radius:999px;padding:4px 11px;letter-spacing:0;
+}
+.fee-src.live::before{
+  content:"";width:6px;height:6px;border-radius:50%;background:#30d158;
+}
+.fee-price{
+  margin-top:14px;font-size:22px;font-weight:700;letter-spacing:-.02em;
+  color:var(--ink);display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;
+}
+.fee-price b{font-size:28px;font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.fee-unit{font-size:15px;font-weight:500;color:var(--muted);letter-spacing:0}
+.fee-price.is-empty{color:#8a5c00}
+.fee-price.is-empty::before{
+  content:"";width:22px;height:22px;border-radius:50%;
+  background:var(--amber-bg);border:1px solid var(--amber-line);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FF9F0A' stroke-width='2.2' stroke-linecap='round'%3E%3Cpath d='M12 8v5M12 16.5v.01'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:center;background-size:14px;
+}
+.fee-hint{
+  margin-top:10px;font-size:15px;line-height:1.7;color:var(--muted);letter-spacing:0;
+}
+.fee-meta{
+  display:grid;grid-template-columns:auto minmax(0,1fr);
+  gap:8px 14px;margin-top:14px;
+  padding-top:12px;border-top:1px dashed var(--line);
+  font-size:15px;line-height:1.6;
+}
+.fee-meta dt{color:var(--faint);white-space:nowrap}
+.fee-meta dd{margin:0;color:var(--ink-2);overflow-wrap:anywhere}
+
+/* ---------- 单卡复制按钮 ---------- */
+.exam-copy{
+  width:100%;min-height:52px;margin-top:14px;font-size:16px;
+  background:#fff;
+}
+.exam-copy.copied{
+  border-color:var(--jade);color:var(--jade);background:var(--mint-2);
+}
+
+/* 复制被浏览器拦下时的兜底输入框（文字已选中，可直接 Ctrl+C / 长按） */
+.exam-copy-fallback{
+  width:100%;min-height:160px;margin-top:12px;padding:14px 16px;
+  border:1px solid var(--jade);border-radius:14px;
+  background:var(--mint-3);color:var(--ink-2);
+  font-size:16px;line-height:1.75;letter-spacing:0;
+  resize:vertical;
+}
+.exam-copy-fallback:focus{box-shadow:0 0 0 4px rgba(48,209,88,.14)}
+
+/* ================= 06 询问句（可复制） ================= */
+.exam-ask{
+  margin-top:24px;padding:24px;
+  border-radius:22px;
+  background:linear-gradient(135deg,#f3f9ff 0%,#ffffff 60%);
+  border:1px solid rgba(0,113,227,.18);
+}
+.exam-ask-head{display:flex;align-items:flex-start;gap:14px}
+.exam-ask-ic{
+  flex:0 0 44px;width:44px;height:44px;border-radius:14px;
+  display:grid;place-items:center;background:#fff;
+  border:1px solid rgba(0,113,227,.2);color:var(--pine);
+}
+.exam-ask-ic svg{width:22px;height:22px}
+.exam-ask-head h3{font-size:20px;font-weight:700;letter-spacing:-.02em}
+.exam-ask-head p{
+  margin-top:8px;font-size:16px;line-height:1.7;color:var(--ink-2);letter-spacing:0;
+}
+.exam-ask-list{margin-top:16px;display:grid;gap:0}
+.exam-ask-list li{
+  display:grid;grid-template-columns:26px minmax(0,1fr);gap:12px;
+  padding:14px 0;border-bottom:1px dashed var(--line);
+  font-size:17px;line-height:1.75;color:var(--ink-2);letter-spacing:0;
+}
+.exam-ask-list li:last-child{border-bottom:0;padding-bottom:4px}
+.exam-ask-list li em{
+  font-style:normal;font-weight:700;color:var(--pine);
+  font-variant-numeric:tabular-nums;font-size:15px;padding-top:3px;
+}
+.exam-ask-actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:22px}
+.exam-ask-actions .btn{min-height:56px;padding:0 26px;font-size:17px}
+.exam-ask-tip{font-size:14px;color:var(--faint);line-height:1.6}
+
+/* ================= 07 页脚说明 ================= */
+.exam-foot{
+  margin-top:22px;padding-top:18px;border-top:1px solid var(--line);
+  font-size:15px;line-height:1.8;color:var(--faint);letter-spacing:0;
+}
+.exam-foot b{color:var(--muted);font-weight:600}
+.exam-foot span{display:block}
+
+/* ================= 08 响应式 ================= */
+@media (max-width:980px){
+  .exam-entry{grid-template-columns:52px minmax(0,1fr);gap:18px}
+  .exam-entry .btn{grid-column:1/-1;width:100%}
+  .exam-cols{grid-template-columns:1fr}
+}
+@media (max-width:760px){
+  .exam-entry{padding:22px}
+  .exam-entry h3{font-size:19px}
+  .exam-entry p{font-size:16px}
+  .exam-dialog{width:calc(100% - 16px);max-height:94vh;border-radius:20px}
+  .exam-dialog-head{padding:22px 20px 16px}
+  .exam-dialog-head h2{font-size:23px;padding-right:56px}
+  .exam-dialog-head > p{font-size:15px}
+  .exam-dialog-body{padding:18px 16px 24px}
+  .exam-dialog-close{width:46px;height:46px;right:14px;top:16px;font-size:22px}
+  .exam-item > summary{
+    grid-template-columns:40px minmax(0,1fr) 20px;
+    gap:12px;padding:16px 16px;min-height:76px;
+    align-items:start;
+  }
+  .exam-no{width:40px;height:40px;border-radius:12px;font-size:14px}
+  .exam-name b{font-size:18px;padding-top:2px}
+  .exam-name small{font-size:15px;margin-top:8px}
+  .exam-time-chip{display:none}
+  .exam-chev{margin-top:8px}
+  .exam-body{padding:4px 16px 20px}
+  .exam-block p,.exam-block li,.exam-after,.exam-ask-list li{font-size:16px}
+  .exam-context{padding:14px 15px;gap:11px}
+  .exam-context p{font-size:15px}
+  .exam-context-said{font-size:16px !important}
+  .exam-context-ic{flex:0 0 28px;width:28px;height:28px}
+  .exam-group{margin-bottom:20px}
+  .exam-group-head h3{font-size:16px}
+  .exam-group-head p{font-size:14px}
+  .exam-mind b{margin-right:7px}
+  .exam-ask{padding:18px}
+  .exam-legend{display:none}
+  /* 窄屏不做横向滚动：中老年用户看不到「右边还有」，只会以为少了按钮。
+     改成换行，四个筛选全露出来。 */
+  .exam-filter{
+    flex-wrap:wrap;gap:7px;overflow:visible;
+    padding-bottom:0;margin-bottom:14px;
+  }
+  .exam-filter button{flex:0 1 auto;min-height:46px;padding:0 14px;font-size:15px}
+  .exam-need-note{font-size:15px;padding:12px 14px}
+}
+@media (max-width:480px){
+  .exam-entry-tags{gap:6px}
+  .exam-tag{font-size:12px;padding:3px 9px}
+  .fee-price{font-size:19px}
+  .fee-price b{font-size:24px}
+  .fee-meta{grid-template-columns:1fr;gap:4px}
+  .fee-meta dd{margin-bottom:8px}
+  .exam-need{font-size:11px;padding:2px 8px}
+  .exam-filter button{min-height:44px;padding:0 12px;font-size:14px}
+}
+@media (prefers-reduced-motion:reduce){
+  .exam-dialog[open]{animation:none}
+  .exam-chev,.exam-dialog-close{transition:none}
+}
